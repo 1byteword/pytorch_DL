@@ -1,7 +1,11 @@
 import torch
 import matplotlib.pyplot as plt
 from torch import nn
-from LinearRegressionModel import LinearRegressionModel
+from LinearRegressionModel import LinearRegressionModel 
+
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad);
 
 covering = { 1: "data (prepare and load)",
              2: "build model",
@@ -67,7 +71,7 @@ loss = nn.L1Loss()
 
 optimizer = torch.optim.SGD(params=model_0.parameters(), lr=0.01)
 
-epochs = 100
+epochs = 150
 
 train_loss_values = []
 test_loss_values = []
@@ -99,16 +103,40 @@ for epoch in range(epochs):
             test_loss_values.append(test_loss.detach().numpy())
             print(f"Epoch: {epoch} | MAE Train Loss: {loss_amt} | MAE Test Loss {test_loss} ")
 
-plt.plot(epoch_count, train_loss_values, label="Train loss")
-plt.plot(epoch_count, test_loss_values, label="Test loss")
-plt.title("Training and test loss curves")
-plt.ylabel("Loss")
-plt.xlabel("Epochs")
-plt.legend()
-plt.show()
-
 
 print("The model learned the following values for weights and bias:")
 print(model_0.state_dict())
 print("\nAnd the original values for weights and bias are:")
 print(f"weights: {weight}, bias: {bias}")
+
+total_params = count_parameters(model_0)
+print(f"The model has {total_params} number of parameters.")
+
+
+
+def plot_predictions(train_data=X_train,
+                     train_labels=y_train,
+                     test_data=X_test,
+                     test_labels=y_test,
+                     predictions=None):
+    plt.figure(figsize=(10,7))
+
+    plt.scatter(train_data, train_labels, c="b", s=4, label="Training data")
+
+    plt.scatter(test_data, test_labels, c="g", s=4, label="Testing data")
+
+    if predictions is not None:
+        plt.scatter(test_data, predictions, c="r", s=4, label="Predictions")
+
+    plt.legend(prop={"size": 14})
+    plt.show();
+
+
+
+model_0.eval()
+
+with torch.inference_mode():
+    y_preds = model_0(X_test)
+
+print(y_preds)
+plot_predictions(predictions=y_preds)
