@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from torch import nn
 from LinearRegressionModel import LinearRegressionModel 
-
+from pathlib import Path
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad);
@@ -140,3 +140,24 @@ with torch.inference_mode():
 
 print(y_preds)
 plot_predictions(predictions=y_preds)
+
+
+MODEL_PATH = Path("models")
+MODEL_PATH.mkdir(parents=True, exist_ok=True)
+
+MODEL_NAME = "01_pytorch_workflow_model_0.pth"
+MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
+
+print(f"Saving model to: {MODEL_SAVE_PATH}")
+torch.save(obj=model_0.state_dict(), f=MODEL_SAVE_PATH)
+
+
+loaded_model_0 = LinearRegressionModel()
+loaded_model_0.load_state_dict(torch.load(f=MODEL_SAVE_PATH))
+
+loaded_model_0.eval()
+
+with torch.inference_mode():
+    loaded_model_preds = loaded_model_0(X_test)
+
+print(y_preds==loaded_model_preds)
