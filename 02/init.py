@@ -76,7 +76,7 @@ def accuracy_fn(y_true, y_pred):
     return acc;
 
 torch.manual_seed(42)
-epochs = 100
+epochs = 1000
 
 y_logits = model_0(X_test)[:5]
 print(y_logits)
